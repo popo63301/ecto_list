@@ -10,8 +10,6 @@ defmodule EctoList.Context do
       @list_items_key unquote(list_items_key)
       @items_order_key unquote(items_order_key)
 
-      IO.inspect(@list_items_key)
-
       def sync_order_list(%List{} = list) do
         items = Map.get(list, @list_items_key)
         items_order = Map.get(list, @items_order_key)
