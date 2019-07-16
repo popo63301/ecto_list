@@ -13,7 +13,7 @@ defmodule EctoList do
 
   """
   def hello do
-    :worldddddd
+    :world
   end
 
   #########################
