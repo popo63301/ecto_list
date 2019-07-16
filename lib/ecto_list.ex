@@ -18,7 +18,7 @@ defmodule EctoList do
 
       items_order = [5, 3, 1]
 
-      complete_items_order(all_items, items_order)
+      ordered_items_list(all_items, items_order)
       # [%{id: 5, title: "Item 5", inserted_at: ~N[2019-07-16 16:07:15]},
       #    %{id: 3, title: "Item 3", inserted_at: ~N[2019-07-16 16:05:15]},
       #    %{id: 1, title: "Item 1", inserted_at: ~N[2019-07-16 16:03:15]},

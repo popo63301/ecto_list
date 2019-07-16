@@ -14,6 +14,7 @@ defmodule EctoList.Context do
 
   `reset_order_list/1` : will set the items order as the list of ids ordered by inserted date.
   """
+
   defmacro __using__(opts) do
     list_items_key = Keyword.get(opts, :list_items_key)
     items_order_key = Keyword.get(opts, :items_order_key)
