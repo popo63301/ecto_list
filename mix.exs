@@ -8,7 +8,9 @@ defmodule EctoList.MixProject do
       elixir: "~> 1.8",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-
+      # Hex
+      description: "Simple ordered model management with Ecto.",
+      package: package(),
       # Docs
       name: "ecto_list",
       source_url: "https://github.com/popo63301/ecto_list",
@@ -25,6 +27,15 @@ defmodule EctoList.MixProject do
   def application do
     [
       extra_applications: [:logger]
+    ]
+  end
+
+  defp package do
+    [
+      maintainers: ["Sofiane Baddag"],
+      licenses: ["MIT"],
+      links: %{github: "https://github.com/popo63301/ecto_list"},
+      files: ~w(lib LICENSE mix.exs README.md)
     ]
   end
 
