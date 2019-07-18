@@ -11,13 +11,13 @@ defmodule EctoList.MixProject do
 
       # Docs
       name: "ecto_list",
-      source_url: "https://github.com/USER/PROJECT",
-      homepage_url: "http://YOUR_PROJECT_HOMEPAGE",
+      source_url: "https://github.com/popo63301/ecto_list",
       docs: [
-        # The main page in the docs
         main: "ecto_list",
-        # logo: "path/to/logo.png",
-        extras: ["README.md"]
+        extras: ["README.md": [], "guides/tutorial.md": [title: "Tutorial"]]
+      ],
+      groups_for_extras: [
+        Guides: Path.wildcard("guides/*.md")
       ]
     ]
   end
