@@ -32,6 +32,7 @@ defmodule EctoList do
     search_function = fn x -> Enum.find(items, fn item -> item.id == x end) end
 
     Enum.map(complete_items_order, search_function)
+    |> Enum.filter(&(!is_nil(&1)))
   end
 
   @doc """
