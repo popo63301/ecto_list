@@ -269,7 +269,6 @@ If you go to "/series" and click the first serie, you'll get the list of the 3 v
 For this example, I will use [draggable](https://github.com/Shopify/draggable), a library made by Shopify but you can use whatever drag and drop library.
 In the terminal, go to the assets folder and run `npm i @shopify/draggable`.
 
-// Créer fichier sortItems et l'importer dans App.JS
 In `assets/js`, create a file called "ectoListSorting.js" and add this content.
 
 ```js
