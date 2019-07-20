@@ -323,7 +323,7 @@ Now back to the edit form of serie (`templates/serie/form.html.eex`), add the fo
 
 Now, you can drag and drop the videos of a serie and save the modified order.
 
-#### Conclusion
+## Conclusion
 
 There is still a lot of code copy pasting but it's worth it because you have the control of your code.
 This library is pretty basic. The most important function is `EctoList.ordered_items_list/2` that render the list of items in the appropriate order.
