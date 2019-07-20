@@ -1,14 +1,11 @@
 # Tutorial
 
-The goal of this tutorial is to explain you how to setup Ecto*list.
-We will use a basic example to make the process clearer. We will build a simple Serie/Video app, it will be called... \_drum roll 🥁* ... Netflix .
+The goal of this tutorial is to explain you how to setup ecto_list.
+We will use a basic example to make the process clearer. We will build a simple Serie/Video app, it will be called... **drum roll 🥁** ... Netflix .
 A Serie is a set of videos with a certain order.
 
-#TODO
+##### 1) Generating the model
 
-## Generating the model
-
-//✅ installation generateur (avec dans video reference de serie et dans serie, liste de id)
 We will run the generators for our models: Series and Videos.
 
 mix phx.gen.html Series Serie series title items_order:array:id
@@ -17,7 +14,8 @@ mix phx.gen.html Videos Video videos title serie_id:references:series
 We will store the videos order inside the serie with the field `:items_order`. In this example, we decide to call it "items_order" but you can change the name as you wish.
 Also, we didn't care much about the name of the context so we created a separate context for each model but you could definitely put them together in the same context.
 
-//✅ run migration
+##### 2) Run migration
+
 Run the migration with `mix ecto.migrate`.
 Add the following lines in the router:
 
@@ -26,25 +24,9 @@ resources "/series", SerieController
 resources "/videos", VideoController
 ```
 
-//✅ dans Serie schmema = mettre default items_order à []
-In the Serie schema module `Netflix.Series.Serie`, add a default to items_order:
+##### 3) Change schemas
 
-```diff
-defmodule Netflix.Series.Serie do
-# ...
-  schema "series" do
--   field :items_order, {:array, :id}
-+   field :items_order, {:array, :id}, default: []
-    field :title, :string
-
-    timestamps()
-  end
-# ...
-end
-```
-
-//✅ dans Serie schema et Video schema, mettre les relationships
-Add the right relationships to the models
+Add the right relationships to the models. In the Serie schema module `Netflix.Series.Serie`, add a default to items_order:
 
 ```diff
 defmodule Netflix.Series.Serie do
@@ -53,13 +35,23 @@ defmodule Netflix.Series.Serie do
 
   schema "lists" do
     field :title, :string
-    field :items_order, {:array, :id}, default: []
+-   field :items_order, {:array, :id}
++   field :items_order, {:array, :id}, default: []
 
 +   has_many :videos, Video
 
     timestamps()
   end
-# ...
+
+  @doc false
+  def changeset(video, attrs) do
+    video
+-    |> cast(attrs, [:title])
+-    |> validate_required([:title])
++    |> cast(attrs, [:title, :serie_id])
++    |> validate_required([:title, :serie_id])
+  end
+
 end
 ```
 
@@ -80,7 +72,8 @@ defmodule Netflix.Videos.Video do
 end
 ```
 
-//✅ installer ecto_list
+##### 4) Install `ecto_list`
+
 Add `ecto_list` to your list of dependencies in `mix.exs` (you can check the last version on hex.pm).
 
 ```elixir
@@ -93,7 +86,8 @@ def deps do
 end
 ```
 
-//✅ dans Series context mettre use EctoList.Context
+##### 5) use `EctoList.Context`
+
 You can use the EctoList.Context module to add Context functions to the Serie Context.
 
 ```diff
@@ -116,12 +110,12 @@ defmodule Netflix.Series do
 
 Options:
 
-- list: the schema containing the list of items. Here it is Serie because each Serie can contain a list of Videos.
-- repo: the Repo module of the app
-- list_items_key: the key used in the `has_many` relationship to access the list of items
-- items_order_key: the key used in the field that contains the items order. Here it's `items_order` because that's how we decided to call it.
+- `list`: the schema containing the list of items. Here it is Serie because each Serie can contain a list of Videos.
+- `repo`: the Repo module of the app
+- `list_items_key`: the key used in the `has_many` relationship to access the list of items
+- `items_order_key`: the key used in the field that contains the items order. Here it's `items_order` because that's how we decided to call it.
 
-//✅ dans Series context mettre Repo.preload :videos dans get_video
+##### 6) Preload videos
 
 Add `Repo.preload/2` to load the videos while fetching for a specific serie.
 
@@ -130,8 +124,9 @@ Add `Repo.preload/2` to load the videos while fetching for a specific serie.
 + def get_serie!(id), do: Repo.get!(Serie, id) |> Repo.preload(:videos)
 ```
 
-//✅ Dans Serie Controller, show, dégager liste ordonnées de vidéos
-In the show action of the Serie Controlle, add a call to `EctoList.ordered_items_list/2` which will return the list of videos ordered according the list of ids set in second position of entries.
+##### 7) Change `show` action (SerieController)
+
+In the show action of the Serie Controller, add a call to `EctoList.ordered_items_list/2` which will return the list of videos ordered according the list of ids set in second position of entries.
 The first entry is the list of items set in the `has_many` relationship. The second entry is the list of ids which corresponds to the items order.
 
 ```diff
@@ -148,7 +143,8 @@ defmodule NetflixWeb.SerieController do
 end
 ```
 
-//✅ Dans show template: afficher liste vidéos
+##### 8) Change `show` template
+
 In the show template of Serie, add the following lines:
 
 ```diff
@@ -179,8 +175,9 @@ In the show template of Serie, add the following lines:
 
 ```
 
-//✅ Dans Serie Controller, edit, dégager liste ordonnées de vidéos
-Back at the Serie controller, add the following lines to the edit action:
+##### 9) Change `edit` and `update` action (SerieController)
+
+Back at the Serie controller, add the following lines to the edit and to the update action:
 
 ```diff
 defmodule NetflixWeb.SerieController do
@@ -193,11 +190,29 @@ defmodule NetflixWeb.SerieController do
 -   render(conn, "edit.html", serie: serie, changeset: changeset)
 +   render(conn, "edit.html", serie: serie, videos: videos, changeset: changeset)
   end
+
+-  def update(conn, %{"id" => id, "serie" => serie_params}) do
++  def update(conn, %{"id" => id, "serie" => serie_params, "items_order" => items_order}) do
+    serie = Series.get_serie!(id)
++   serie_params = Map.put(serie_params, "items_order", items_order)
+
+    case Series.update_serie(serie, serie_params) do
+      {:ok, serie} ->
+        conn
+        |> put_flash(:info, "Serie updated successfully.")
+        |> redirect(to: Routes.serie_path(conn, :show, serie))
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        render(conn, "edit.html", serie: serie, changeset: changeset)
+    end
+  end
 #...
 end
 ```
 
-// Dans form template: afficher liste vidéos si on est dans edit
+##### 10) Change form template for `edit` action
+
+Inside the form template of serie, add those changes:
 
 ```diff
 <%= form_for @changeset, @action, fn f -> %>
@@ -233,7 +248,83 @@ end
 
 ```
 
-// Installer dans assets npm package, draggable
-// Créer fichier sortItems et l'importer dans App.JS
+We made a simple if condition to add this block of code only if we are in the `edit` action because the form is shared also for the `new` action.
 
-// Conclusion
+##### 11) Create sample data to test
+
+We can add some data so that we can see what we get now.
+Inside the iex console, run:
+
+```
+Netflix.Series.create_serie(%{title: "Serie 1"})
+Netflix.Videos.create_video(%{title: "Video 1", serie_id: 1})
+Netflix.Videos.create_video(%{title: "Video 2", serie_id: 1})
+Netflix.Videos.create_video(%{title: "Video 3", serie_id: 1})
+```
+
+If you go to "/series" and click the first serie, you'll get the list of the 3 videos we created. Now, we will add a drag and drop library so that we can change the order.
+
+##### 12) Install Drag&Drop library
+
+For this example, I will use [draggable](https://github.com/Shopify/draggable), a library made by Shopify but you can use whatever drag and drop library.
+In the terminal, go to the assets folder and run `npm i @shopify/draggable`.
+
+// Créer fichier sortItems et l'importer dans App.JS
+In `assets/js`, create a file called "ectoListSorting.js" and add this content.
+
+```js
+import { Sortable } from "@shopify/draggable";
+
+export default function ectoListSorting() {
+  const containerSelector = ".StackedList";
+  const containers = document.querySelectorAll(containerSelector);
+
+  new Sortable(containers, {
+    draggable: ".StackedListItem",
+    mirror: {
+      appendTo: containerSelector,
+      constrainDimensions: true
+    }
+  });
+}
+```
+
+In `assets/js/app.js`, add the following lines:
+
+```diff
+// ...
+import "phoenix_html";
+
++ import ectoListSorting from "./ectoListSorting";
+
++ ectoListSorting();
+// ...
+```
+
+Now back to the edit form of serie (`templates/serie/form.html.eex`), add the following changes:
+
+```diff
+  <%= if @view_template == "edit.html" do %>
+-    <div>
++    <div class="StackedList">
+    <%= for video <- @videos do %>
+-      <div>
++      <div class="StackedListItem">
+        <%= hidden_input f, :items_order, name: "items_order[]", value: video.id %>
+        <%= video.id %> - <%= video.title %>
+      </div>
+    <% end %>
+    </div>
+  <% end %>
+
+  <div>
+    <%= submit "Save" %>
+  </div>
+```
+
+Now, you can drag and drop the videos of a serie and save the modified order.
+
+#### Conclusion
+
+There is still a lot of code copy pasting but it's worth it because you have the control of your code.
+This library is pretty basic. The most important function is `EctoList.ordered_items_list/2` that render the list of items in the appropriate order.
