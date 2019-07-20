@@ -4,7 +4,7 @@ The goal of this tutorial is to explain you how to setup ecto_list.
 We will use a basic example to make the process clearer. We will build a simple Serie/Video app, it will be called... **drum roll 🥁** ... Netflix .
 A Serie is a set of videos with a certain order.
 
-##### 1) Generating the model
+### 1) Generating the model
 
 We will run the generators for our models: Series and Videos.
 
@@ -14,7 +14,7 @@ mix phx.gen.html Videos Video videos title serie_id:references:series
 We will store the videos order inside the serie with the field `:items_order`. In this example, we decide to call it "items_order" but you can change the name as you wish.
 Also, we didn't care much about the name of the context so we created a separate context for each model but you could definitely put them together in the same context.
 
-##### 2) Run migration
+### 2) Run migration
 
 Run the migration with `mix ecto.migrate`.
 Add the following lines in the router:
@@ -24,7 +24,7 @@ resources "/series", SerieController
 resources "/videos", VideoController
 ```
 
-##### 3) Change schemas
+### 3) Change schemas
 
 Add the right relationships to the models. In the Serie schema module `Netflix.Series.Serie`, add a default to items_order:
 
@@ -72,7 +72,7 @@ defmodule Netflix.Videos.Video do
 end
 ```
 
-##### 4) Install `ecto_list`
+### 4) Install `ecto_list`
 
 Add `ecto_list` to your list of dependencies in `mix.exs` (you can check the last version on hex.pm).
 
@@ -86,7 +86,7 @@ def deps do
 end
 ```
 
-##### 5) use `EctoList.Context`
+### 5) use `EctoList.Context`
 
 You can use the EctoList.Context module to add Context functions to the Serie Context.
 
@@ -115,7 +115,7 @@ Options:
 - `list_items_key`: the key used in the `has_many` relationship to access the list of items
 - `items_order_key`: the key used in the field that contains the items order. Here it's `items_order` because that's how we decided to call it.
 
-##### 6) Preload videos
+### 6) Preload videos
 
 Add `Repo.preload/2` to load the videos while fetching for a specific serie.
 
@@ -124,7 +124,7 @@ Add `Repo.preload/2` to load the videos while fetching for a specific serie.
 + def get_serie!(id), do: Repo.get!(Serie, id) |> Repo.preload(:videos)
 ```
 
-##### 7) Change `show` action (SerieController)
+### 7) Change `show` action (SerieController)
 
 In the show action of the Serie Controller, add a call to `EctoList.ordered_items_list/2` which will return the list of videos ordered according the list of ids set in second position of entries.
 The first entry is the list of items set in the `has_many` relationship. The second entry is the list of ids which corresponds to the items order.
@@ -143,7 +143,7 @@ defmodule NetflixWeb.SerieController do
 end
 ```
 
-##### 8) Change `show` template
+### 8) Change `show` template
 
 In the show template of Serie, add the following lines:
 
@@ -175,7 +175,7 @@ In the show template of Serie, add the following lines:
 
 ```
 
-##### 9) Change `edit` and `update` action (SerieController)
+### 9) Change `edit` and `update` action (SerieController)
 
 Back at the Serie controller, add the following lines to the edit and to the update action:
 
@@ -210,7 +210,7 @@ defmodule NetflixWeb.SerieController do
 end
 ```
 
-##### 10) Change form template for `edit` action
+### 10) Change form template for `edit` action
 
 Inside the form template of serie, add those changes:
 
@@ -250,7 +250,7 @@ Inside the form template of serie, add those changes:
 
 We made a simple if condition to add this block of code only if we are in the `edit` action because the form is shared also for the `new` action.
 
-##### 11) Create sample data to test
+### 11) Create sample data to test
 
 We can add some data so that we can see what we get now.
 Inside the iex console, run:
@@ -264,7 +264,7 @@ Netflix.Videos.create_video(%{title: "Video 3", serie_id: 1})
 
 If you go to "/series" and click the first serie, you'll get the list of the 3 videos we created. Now, we will add a drag and drop library so that we can change the order.
 
-##### 12) Install Drag&Drop library
+### 12) Install Drag&Drop library
 
 For this example, I will use [draggable](https://github.com/Shopify/draggable), a library made by Shopify but you can use whatever drag and drop library.
 In the terminal, go to the assets folder and run `npm i @shopify/draggable`.
