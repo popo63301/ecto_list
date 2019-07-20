@@ -15,7 +15,7 @@ defmodule EctoList.MixProject do
       name: "ecto_list",
       source_url: "https://github.com/popo63301/ecto_list",
       docs: [
-        main: "ecto_list",
+        main: "readme",
         extras: ["README.md": [], "guides/tutorial.md": [title: "Tutorial"]]
       ],
       groups_for_extras: [
@@ -41,7 +41,7 @@ defmodule EctoList.MixProject do
 
   defp deps do
     [
-      {:ex_doc, "~> 0.20.2", only: [:dev, :doc]}
+      {:ex_doc, "~> 0.20.2", only: [:dev, :doc], runtime: false}
     ]
   end
 end
