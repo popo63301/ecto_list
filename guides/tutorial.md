@@ -80,7 +80,7 @@ Add `ecto_list` to your list of dependencies in `mix.exs` (you can check the las
 def deps do
   [
     # ...
-    {:ecto_list, "~> 0.1.0"}
+    {:ecto_list, "~> 0.1.2"}
     # ...
   ]
 end
